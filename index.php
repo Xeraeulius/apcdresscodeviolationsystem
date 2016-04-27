@@ -19,37 +19,32 @@ revert_page_protection();
 
 			if (validate_student($search_id)) {
 				if (violation_ticket_today($search_id)) {
-					require 'app/views/widgets/violation_today.php';
-					require 'app/views/widgets/notification_details.php';
-				} elseif (student_has_notification($search_id)) {
-					require 'app/views/widgets/violation_login.php';
-					require 'app/views/widgets/notification_details.php';
+					include 'app/views/widgets/violation_today.php';
 				} elseif (!student_has_notification($search_id)) {
-					require 'app/views/widgets/violation_login.php';
+					include 'app/views/widgets/violation_login.php';
+				} elseif (student_has_notification($search_id)) {
+					include 'app/views/widgets/violation_login.php';
+					include 'app/views/widgets/notification_details.php';
 				}
 			} else {
-		?>
+			?>
 				<div class="alert alert-danger" role="alert">
 					<meta http-equiv="refresh" content="3; URL='index.php'" />
 					<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
 					<span class="sr-only">Error:</span>
 					<span class="danger_message">Please Register and Accommodate your Student Account in the IT Resource Office.</span>
 				</div>
-		<?php
+			<?php
 			}
 		}
 		if (isset($_GET['success'])) {
 		?>
-			<div class="alert alert-success">
-				<meta http-equiv="refresh" content="2; URL='index.php'" />
-				<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-				<span class="success_message">Violation Ticket has been processed. For more information login to the APC Violation Website.</span>
-			</div>
+				<div class="alert alert-success">
+					<meta http-equiv="refresh" content="2; URL='index.php'" />
+					<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+					<span class="success_message">Violation Ticket has been processed. For more information login to the APC Violation Website.</span>
+				</div>
 		<?php
-		}
-
-		if (isset($_GET['test'])) {
-			echo "HELLO!";
 		}
 		?>
 	</div>

@@ -46,26 +46,32 @@
 								LEFT JOIN disciplinary_personnels
 								ON disciplinary_personnels.dp_id = violation_details.dp_id
 
-								WHERE (students.student_id = '$search_id' OR students.card_id = '$search_id') AND EXTRACT(DAY FROM violation_details.created_at) = $date_today";
+								WHERE (students.student_id = :search_id OR students.card_id = :search_id) AND EXTRACT(DAY FROM violation_details.created_at) = :date_today";
 					
-					$result = $conn->query($select);
+					$result = $conn->prepare($select);
+					$result->execute(array(
+											':search_id'  => $search_id, 
+											':date_today' => $date_today
+										  ));
+					$student = $result->fetchAll();
 					
-					if ($result) {
-						while ($row = $result->fetch_object()) {
+					if ($student) {
+						foreach ($student as $row) {
+							$id_picutre = $row['id_picture'];
 			?>
 							<div class="ticket_info">
-								<img src="<?php echo $row->id_picture; ?>" width="120" height="120" class="img-thumbnail" style="float: left;">
+								<img src="<?php echo $id_picutre; ?>" width="120" height="120" class="img-thumbnail" style="float: left;">
 								<label class="form_name" style="margin-right: 118px;">Name</label>
-								<input type="text" class="form-control" value="<?php echo $row->student_last_name . ", " . $row->student_first_name . " " . $row->student_middle_name; ?>" disabled style="width: 250px;">
+								<input type="text" class="form-control" value="<?php echo $row['student_last_name'] . ", " . $row['student_first_name'] . " " . $row['student_middle_name']; ?>" disabled style="width: 250px;">
 								<label class="form_name" style="margin-top: 20px; margin-right: 113px;">Status</label>
-								<p style="margin-top: 17px; font-size: 18px;"><?php echo $row->status ?></p>
+								<p style="margin-top: 17px; font-size: 18px;"><?php echo $row['status'] ?></p>
 								<label class="form_name" style="margin-top: 9px; margin-right: 72px;">Issued Date</label>
-								<p style="margin-top: 21px; font-size: 18px;"><?php echo $row->created_at ?></p>
+								<p style="margin-top: 21px; font-size: 18px;"><?php echo $row['created_at'] ?></p>
 							</div>
 							<div class="ticket_info">
-								<img src="<?php echo $row->dp_picture; ?>" width="120" height="120" class="img-thumbnail" style="float: left;">
+								<img src="<?php echo $row['dp_picture']; ?>" width="120" height="120" class="img-thumbnail" style="float: left;">
 								<label class="form_name" style="margin-right: 30px; margin-top: 40px;">Issued By</label>
-								<input type="text" class="form-control" value="<?php echo $row->last_name . ", " . $row->first_name . " " . $row->middle_name; ?>" disabled style="width: 250px; margin-right: 5px; margin-top: 35px; display: inline; float: right;">
+								<input type="text" class="form-control" value="<?php echo $row['last_name'] . ", " . $row['first_name'] . " " . $row['middle_name']; ?>" disabled style="width: 250px; margin-right: 5px; margin-top: 35px; display: inline; float: right;">
 							</div>
 							<div class="space">
 								<p style="margin-bottom: 30px;"></p>

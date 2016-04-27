@@ -16,11 +16,13 @@ if (initialize_token() === TRUE) {
 		global $conn;
 		$search_id = $_SESSION['student_id'];
 
-		$select = "SELECT * from students WHERE card_id = $search_id OR student_id = '$search_id'";
-		$result = $conn->query($select);
+		$select = "SELECT * from students WHERE card_id = :search_id OR student_id = :search_id";
+		$result = $conn->prepare($select);
+		$result->execute(array(':search_id' => $search_id));
+		$stmt = $result->fetchAll();
 
 		if ($result) {
-			while ($row = $result->fetch_object()) {
+			foreach ($stmt as $row) {
 ?>
 <img src="app/assets/images/application_images/violation.png" width="180" height="100">
 <?php  
@@ -32,14 +34,14 @@ if (initialize_token() === TRUE) {
 	<div class="form_student">
 		<div class="student_name">
 			<label class="form_name">Name</label>
-			<input type="text" class="form-control" value="<?php echo $row->last_name . ", " . $row->first_name . " " . $row->middle_name; ?>" disabled>
+			<input type="text" class="form-control" value="<?php echo $row['last_name'] . ", " . $row['first_name'] . " " . $row['middle_name']; ?>" disabled>
 		</div>
 		<div class="student_name student_course">
 			<label class="form_course">Course</label>
-			<input type="text" class="form-control" value="<?php echo $row->course; ?>" disabled>
+			<input type="text" class="form-control" value="<?php echo $row['course']; ?>" disabled>
 		</div>
 		<div class="student_picture">
-			<img src="<?php echo $row->id_picture; ?>" width="160" height="160" class="img-thumbnail">
+			<img src="<?php echo $row['id_picture']; ?>" width="160" height="160" class="img-thumbnail">
 		</div>
 	</div>
 <?php 
@@ -52,7 +54,7 @@ if (initialize_token() === TRUE) {
 				<label class="violation_label">List of Dress Code Violation :</label>
 				<div class="violation_type">
 				<?php 
-					$gender = $search_id;
+					$gender = $_SESSION['student_id'];
 					switch(determine_gender($gender)) {
 						case "Male":
 							require 'app/views/widgets/male_violation.php';
@@ -82,7 +84,27 @@ if (initialize_token() === TRUE) {
 		</form>
 <?php 
 		} else {
-			require 'app/views/widgets/wrong_password.php';
+?>
+		<div class="modal fade modal-warning" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 style="text-align: left;" class="modal-title" id="myModalLabel"><i class="fa fa-lock"></i> Please Enter Your Password:</h4>
+		      </div>
+			    <form action="violation.php" method="POST">	
+			      <div class="modal-body" style="text-align:left;">
+			      	<input autofocus required type="password" class="form-control" name="field_password" />
+			      </div>
+			      <div class="modal-footer">
+			        <button type="submit" name="btn_submit" value="<?php echo $_SESSION['student_id']; ?>" class="btn btn-outline">Submit</button>
+			        <a href="index.php"><button type="button" class="btn btn-outline">Close</button></a>
+			      </div>
+			 	</form>
+		    </div>
+		  </div>
+		</div>
+<?php
 		}
 	}
 }
